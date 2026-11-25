@@ -21,10 +21,13 @@ jobs:
           distribution: temurin
           java-version: 25
 
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 9.3.1
+
       - name: Build jar
-        run: |
-          chmod +x gradlew
-          ./gradlew :app:bootJar --no-daemon -x test
+        run: gradle :app:bootJar --no-daemon -x test
 
       - name: Deploy (start app)
         run: |
@@ -55,4 +58,4 @@ jobs:
 
       - name: Show app log
         if: always()
-        run: tail -n 50 app.log
+        run: tail -n 50 app.log || echo "No app.log (app never started)"

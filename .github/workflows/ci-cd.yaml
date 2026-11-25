@@ -6,9 +6,7 @@ name: ci-cd-pipeline
 on:
   push:
     branches: [main]
-    paths-ignore:
-      - "**.md"
-      - "docs/**"
+
   pull_request:
     branches: [main]
 

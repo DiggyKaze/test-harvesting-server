@@ -1,0 +1,14 @@
+name: "4. Integration tests"
+
+on:
+  workflow_call:
+jobs:
+  integration-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Start test dependencies
+        run: echo "[dummy]  starting postgres + redis containers"
+      - name: Run integration tests
+        run:  echo "[dummy] ./gradlew integrationTest -> 42 passed"
+      - name: Tear down
+        run: echo "[dummy] stopping test containers"

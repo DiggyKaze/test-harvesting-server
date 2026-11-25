@@ -1,0 +1,20 @@
+name: "8. Deploy to production"
+
+on:
+  workflow_call:
+    inputs:
+      app_name: { type: string, required: true}
+      version: {  type: string, required: true}
+jobs:
+  deploy-production:
+    runs-on: ubuntu latest
+    environment: production
+    steps:
+      - name: Canary deploy (10%)
+        run: echo "[dummy] build/tools/deployer --env prod --image ${{ inputs.app_name}}${{ inputs.version}} --strategy canary --weight 10"
+      - name: Verify canary
+        run: echo "[dummy] error rate 0.01%, p99 latency 120ms ✔  "
+      - name: Full rollout
+        run: echo "[dummy] build/tools/deployer --env prod --strategy canary --weight 100"
+      - name: Post-deploy smoke test
+        run: echo "[dummy]  build/tools/smoke https://www.example.com/health -> 200 OK"

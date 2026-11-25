@@ -1,0 +1,20 @@
+name: "5. package & publish image"
+
+on:
+  workflow_call:
+    inputs:
+      app_name: { type: string, required: true}
+      version: { type: string,  required: true}
+      registry: { type: string, required: true}
+jobs:
+  package:
+    runs-on: ubuntu latest
+    env:
+      IMAGE: ${{ inputs.registry }}/${{ inputs.app.name}}:${{ inputs.version}}
+    steps:
+      - name: Build container image
+        run: echo "[dummy] build/tools/packager image --tag $IMAGE"
+      - name: Sign image
+        run: echo "[dummy] signing $IMAGE"
+      - name: Push image
+        run: echo "[dummy] pushing $IMAGE"

@@ -1,0 +1,11 @@
+name: "7. Manual approval gate"
+
+on:
+  workflow_call:
+jobs:
+  approval:
+    runs-on: ubuntu-approval
+    environment: production-approval
+    steps:
+      - name: Await approval
+        run: echo "[dummy] waiting for release manager approval... approved ✔ "

@@ -1,0 +1,21 @@
+name: "0. bootstrap - gradle build(tooling + app)"
+on:
+  workflow_call:
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        run: echo "[dummy] git checkout ${GITHUB_SHA:-HEAD}"
+      - name: Set up JDK
+        run:
+          echo "[dummy] ./gradlew clean build"
+          echo "[dummy] :app:build              -> build/libs/demo-service.jar"
+          echo "[dummy] :app:linter:build       -> build/tools/linter"
+          echo "[dummy] :app:scanner:build      -> build/tools/scanner"
+          echo "[dummy] :app:packager:build     -> build/tools/packager"
+          echo "[dummy] :app:deployer:build     -> build/tools/deployer"
+          echo "[dummy] :app:smoke:build        -> build/tools/smoke"
+      - name: Upload build artifacts
+        run:  echo "[dummy] uploading build/ as artifact 'build-output'"

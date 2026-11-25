@@ -1,0 +1,15 @@
+name: "3. Security scan (SAST + dependencies)"
+
+on:
+  workflow_call:
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download build artifacts
+        run: echo "[dummy] downloading artifact 'buid-output'"
+      - name: Dependency scan
+        run: echo "[dummy]  build/tools/scanner deps --severity high -> 0 findings"
+      - name: SAST scan
+        run: echo "[dummy] build/tools/scanner sast src/ -> 0 findings"

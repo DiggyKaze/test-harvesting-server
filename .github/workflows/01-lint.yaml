@@ -1,0 +1,12 @@
+name: "1. Static analysis / lint"
+on:
+  workflow_call:
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download build artifacts
+        run:  echo "[dummy] downloading artifact 'build-output'"
+      - name: Run linter
+        run: echo "[dummy] build/tools/linter --src src/ --fail-on error"
+

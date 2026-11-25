@@ -1,0 +1,65 @@
+# Dummy CI/CD pipeline
+
+
+name: ci-cd-pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  bootstrap:
+    uses: ./.github/workflows/00-bootstrap.yaml
+
+  lint:
+    needs: bootstrap
+    uses: ./.github/workflows/01-lint.yaml
+  
+  unit-test:
+    needs: bootstrap
+    uses: ./.github/workflows/02-unit-test.yaml
+
+  security-scan:
+    needs: bootstrap
+    uses: ./.github/workflows/03-security-scan.yaml
+
+  integration-test:
+    needs: bootstrap
+    uses: ./.github/workflows/04-integration-test.yaml
+
+  package:
+    needs: integration-test
+    uses: ./.github/workflows/05-package.yaml
+    with:
+      app_name: demo-service
+      version: 1.0.${{github.run_number}}
+      registry: registry.example.com
+  
+  deploy-staging:
+    needs: package
+    uses: ./.github/workflows/06-deploy-staging.yaml
+    with:
+      app_name: demo-service
+      version: 1.0.${{ github.run_number }}
+
+
+  approval:
+    needs: deploy-staging
+    uses: ./.github/workflows/07-approval.yaml
+
+  deploy-production:
+    needs: approval
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/08-deploy-production.yaml
+    with:
+      app_name: demo-service
+      version: 1.0.${{ github.run_number}}
+  notify:
+    needs: deploy-production
+    if: always()
+    uses: ./.github/workflows/09-notify.yaml
+    with:
+      version: 1.0.${{ github.run_number}}
+

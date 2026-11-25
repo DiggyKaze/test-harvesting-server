@@ -1,0 +1,12 @@
+name: "9. Notify"
+
+on:
+  workflow_call:
+    inputs:
+      version: { type: string, required: true}
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send notification
+        run:  echo "[dummy] posting release ${{ inputs.version}} status to #deployments"

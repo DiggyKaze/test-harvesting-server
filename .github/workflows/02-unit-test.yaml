@@ -1,0 +1,17 @@
+name: "2. unit tests"
+
+on:
+  workflow_call:
+
+jobs:
+  unit-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download build artifacts
+        run: echo "[dummy] downloading artifact 'build-output'"
+      - name: Run unit tests
+        run: echo "[dummy] .gradlew test -> 128 passed, 0 failed"
+      - name: Publish coverage
+        run:  echo "[dummy] coverage 87% (threshold 80%) ✔  "
+
+

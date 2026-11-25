@@ -8,9 +8,9 @@ on:
       registry: { type: string, required: true}
 jobs:
   package:
-    runs-on: ubuntu latest
+    runs-on: ubuntu-latest
     env:
-      IMAGE: ${{ inputs.registry }}/${{ inputs.app.name}}:${{ inputs.version}}
+      IMAGE: ${{ inputs.registry }}/${{ inputs.app_name}}:${{ inputs.version}}
     steps:
       - name: Build container image
         run: echo "[dummy] build/tools/packager image --tag $IMAGE"

@@ -1,17 +1,58 @@
 name: "6. Deploy to staging"
-
 on:
   workflow_call:
     inputs:
-      app_name: { type: string, required: true}
-      version: {  type: string, required: true}
+      app_name: { type: string, required: true }
+      version:  { type: string, required: true }
+
 jobs:
   deploy-staging:
     runs-on: ubuntu-latest
     environment: staging
+    env:
+      STAGING_URL: http://localhost:8080
     steps:
-      - name: Deploy
-        run: echo "[dummy] build/tools/deployer --env staging --image ${{ inputs.app_name}}:${{ inputs.version}}"
-      - name: Smoke test
-        run: echo "[dummy] build/tools/smoke https://staging.example.com/health -> 200 OK"
+      - name: Checkout
+        uses: actions/checkout@v4
 
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+
+      - name: Build jar
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:bootJar --no-daemon -x test
+
+      - name: Deploy (start app)
+        run: |
+          JAR=$(ls app/build/libs/*.jar | grep -v plain)
+          echo "Starting $JAR"
+          nohup java -jar "$JAR" > app.log 2>&1 &
+
+      - name: Wait for staging
+        run: |
+          for i in {1..60}; do
+            CODE=$(curl -s -o /dev/null -w '%{http_code}' "$STAGING_URL/actuator/health" || true)
+            if [ "$CODE" != "000" ]; then
+              echo "Staging is up (HTTP $CODE)"
+              exit 0
+            fi
+            echo "Waiting for staging... ($i/60)"
+            sleep 5
+          done
+          echo "Staging did not come up"
+          cat app.log
+          exit 1
+
+      - name: Smoke test
+        run: |
+          curl -s "$STAGING_URL/actuator/health"
+          echo
+          echo "Smoke test passed"
+
+      - name: Show app log
+        if: always()
+        run: tail -n 50 app.log

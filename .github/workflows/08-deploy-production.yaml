@@ -7,7 +7,7 @@ on:
       version: {  type: string, required: true}
 jobs:
   deploy-production:
-    runs-on: ubuntu latest
+    runs-on: ubuntu-latest
     environment: production
     steps:
       - name: Canary deploy (10%)

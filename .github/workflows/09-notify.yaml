@@ -4,9 +4,22 @@ on:
   workflow_call:
     inputs:
       version: { type: string, required: true}
+      status: { type: string, required:_true}
+    secrets:
+      SLACK_WEBHOOK_URL: { required: true}
+
 jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      - name: Send notification
-        run:  echo "[dummy] posting release ${{ inputs.version}} status to #deployments"
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL}}
+        VERSION: ${{ inputs.version}}
+        STATUS: ${{ inputs.status}}
+        RUN_URL: ${{ github.server_url}}/${{ github.repository}}/action/runs${{ github.run_id}}
+      run: |
+        if ["$STATUS" = "success"]; then ICON=":white_check_mark:"; else ICON=":x:"; fi
+      TEXT="$ICON" Release $VERSION of $GITHUB_REPOSITORY: $STATUS. <$RUN_URL|See the run>"
+      curl -sSF -x POST -H 'Content-type: application/json' \
+        --data "{\"text\": \"$TEXT\"}" \
+        "$SLACK_WEBHOOK_URL"

@@ -62,4 +62,5 @@ jobs:
     uses: ./.github/workflows/09-notify.yaml
     with:
       version: 1.0.${{ github.run_number}}
-
+      status: ${{ needs.deploy-production.result}}
+    secrets: inherit

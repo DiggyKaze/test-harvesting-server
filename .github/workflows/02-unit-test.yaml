@@ -2,16 +2,31 @@ name: "2. unit tests"
 
 on:
   workflow_call:
+    create:
 
 jobs:
   unit-test:
+    if: github.event_name != 'create' || github.ref_type == 'branch'
     runs-on: ubuntu-latest
     steps:
-      - name: Download build artifacts
-        run: echo "[dummy] downloading artifact 'build-output'"
-      - name: Run unit tests
-        run: echo "[dummy] .gradlew test -> 128 passed, 0 failed"
-      - name: Publish coverage
-        run:  echo "[dummy] coverage 87% (threshold 80%) ✔  "
+      - name: Checkout
+        uses: actions/checkout@v5
 
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 25
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v5
+        with:
+          gradle-version: 9.3.1
+      - name:
+        run: gradle test --no-daemon
+
+      - name:
+        env:
+          BRANCH: ${{ gituhb.ref_name }}
+          EVENT: €{{ github.event_name }}
+        run: echo "Tested branch $BRANCH (started by $EVENT)"
 

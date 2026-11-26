@@ -90,10 +90,13 @@ jobs:
       version: 1.0.${{ github.run_number}}
 
   notify:
-    needs: [settings, deploy-staging, deploy-production]
+    needs: [settings, bootstrap, lint, unit-test, security-scan, integration-test, package, deploy-staging, approval, deploy-production]
     if: always()
     uses: ./.github/workflows/09-notify.yaml
     with:
       version: 1.0.${{ github.run_number}}
       status: ${{ needs.settings.outputs.environment == 'production' && needs.deploy-production.result || needs.deploy-staging.result }}
+      environment: ${{ needs.settings.outputs.environment }}
+      run_smoke_tests: €{{ needs.settings.outputs.run_smoke_tests }}
+      results: ${{ toJSON(needs) }}
     secrets: inherit

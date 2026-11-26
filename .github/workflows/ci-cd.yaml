@@ -24,7 +24,7 @@ on:
         type: string
         default: staging
       run_smoke_tests:
-        defeault: "yes"
+        default: "yes"
 
 concurrency:
   group: ci-cd-${{ github.ref }}

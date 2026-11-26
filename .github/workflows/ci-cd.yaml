@@ -97,6 +97,6 @@ jobs:
       version: 1.0.${{ github.run_number}}
       status: ${{ needs.settings.outputs.environment == 'production' && needs.deploy-production.result || needs.deploy-staging.result }}
       environment: ${{ needs.settings.outputs.environment }}
-      run_smoke_tests: €{{ needs.settings.outputs.run_smoke_tests }}
+      run_smoke_tests: ${{ needs.settings.outputs.run_smoke_tests }}
       results: ${{ toJSON(needs) }}
     secrets: inherit

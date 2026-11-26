@@ -1,0 +1,30 @@
+name: "10. Settings"
+
+on:
+  workflow_call:
+    inputs:
+      environment:          { type: string, default: "staging" }
+      run_smoke_tests:      { type: string, default: "yes"    }
+    outputs:
+      environment:
+        description: "choosen environment"
+        value:  ${{ jobs.settings.outputs.environment }}
+      run_smoke_tests:
+        description: " shall smoke test run yes/no"
+        value: ${{ jobs.settings.outputs.run_smoke_tests }}
+jobs:
+  settings:
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.s.outputs.environment }}
+      run_smoke_tests: ${{ steps.s.outputs.run_smoke_tests }}
+    steps:
+      - id : s
+        env:
+          ENVIRONMENT: ${{ inputs.environment }}
+          RUN_SMOKE_TESTS: ${{ inputs.run_smoke_tests }}
+        run: |
+          echo "environment=$ENVIRONMENT" >> "$GITHUB_OUTPUT"
+          echo "run_smoke_tests=$RUN_SMOKE_TESTS" >> "$GITHUB_OUTPUT"
+          echo "Envirnonment: $ENVIRONMENT"
+          echo "Smoke-tester: $RUN_SMOKE_TESTS"

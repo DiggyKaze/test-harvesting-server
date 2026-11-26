@@ -4,7 +4,7 @@ on:
     inputs:
       app_name: { type: string, required: true }
       version:  { type: string, required: true }
-
+      run_smoke_tests: { type: string, default: "yes" }
 jobs:
   deploy-staging:
     runs-on: ubuntu-latest
@@ -51,6 +51,7 @@ jobs:
           exit 1
 
       - name: Smoke test
+        if: inputs.run_smoke_tests == 'yes'
         run: |
           curl -s "$STAGING_URL/actuator/health"
           echo

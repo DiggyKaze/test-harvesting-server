@@ -4,14 +4,42 @@
 name: ci-cd-pipeline
 
 on:
-  push:
-    branches: [main]
+  workflow-dispatch:
+    inputs:
+      environment:
+        description: "miljö"
+        type: choice
+        options: [staging, production]
+        default: staging
+      run_smoke_test:
+        description: "run smoke test?"
+        type: choice
+        options: [yes, no]
+        default: yes
+  schedule:
+    - cron: "0 5 * * 1"
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        default: staging
+      run_smoke_tests:
+        defeault: ja
 
-  pull_request:
-    branches: [main]
+concurrency:
+  group: ci-cd-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  ENVIRONMENT: ${{ inputs.environment || 'staging'}}
+  RUN_SMOKE_TESTS: ${{ inputs.run_smoke_tests || 'yes' }}
 
 jobs:
+  settings:
+    uses: ./.github/workflows/10.settings.yaml
+
   bootstrap:
+    needs: settings
     uses: ./.github/workflows/00-bootstrap.yaml
 
   lint:
@@ -27,7 +55,7 @@ jobs:
     uses: ./.github/workflows/03-security-scan.yaml
 
   integration-test:
-    needs: bootstrap
+    needs: [lint, unit-test, security-scan]
     uses: ./.github/workflows/04-integration-test.yaml
 
   package:
@@ -39,29 +67,33 @@ jobs:
       registry: registry.example.com
   
   deploy-staging:
-    needs: package
+    needs: [settings, package]
     uses: ./.github/workflows/06-deploy-staging.yaml
     with:
       app_name: demo-service
       version: 1.0.${{ github.run_number }}
+      run_smoke_tests: ${{ needs.settings.outputs.run_smoke_tests }}
+
 
 
   approval:
-    needs: deploy-staging
+    needs: [settings, approval]
+    if: needs.settings.outputs.environment == 'production'
     uses: ./.github/workflows/07-approval.yaml
 
   deploy-production:
-    needs: approval
-    if: github.ref == 'refs/heads/main'
+    needs: [settings, approval]
+    if: needs.settings.outputs.environment == 'production'
     uses: ./.github/workflows/08-deploy-production.yaml
     with:
       app_name: demo-service
       version: 1.0.${{ github.run_number}}
+
   notify:
     needs: deploy-production
     if: always()
     uses: ./.github/workflows/09-notify.yaml
     with:
       version: 1.0.${{ github.run_number}}
-      status: ${{ needs.deploy-production.result}}
+      status: ${{ needs.settings.outputs.environment == 'production' && needs.deploy-production.result || needs.deploy-staging.result }}
     secrets: inherit

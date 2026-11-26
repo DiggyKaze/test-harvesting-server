@@ -18,5 +18,5 @@ jobs:
         run:
           TEXT=":rotating_light: ci-cd-pipeline failed (started by $WHO). <$RUN_URL|See the run>"
           curl -sSf -X POST -H 'content-type: application/json' \
-            --data "{\"text"\: \"$TEXT\"} \
+            --data "{\"text\": \"$TEXT\"} \
             "$SLACK_WEBHOOK_URL"

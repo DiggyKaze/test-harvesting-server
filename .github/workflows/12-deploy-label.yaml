@@ -1,7 +1,7 @@
 name: Deploy on label
 
 on:
-  issue:
+  issues:
     types: [labeled]
 
 jobs:

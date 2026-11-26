@@ -2,7 +2,7 @@ name: "2. unit tests"
 
 on:
   workflow_call:
-    create:
+  create:
 
 jobs:
   unit-test:

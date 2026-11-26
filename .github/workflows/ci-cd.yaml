@@ -16,8 +16,10 @@ on:
         type: choice
         options: ["yes", "no"]
         default: "yes"
+
   schedule:
     - cron: "0 5 * * 1"
+
   workflow_call:
     inputs:
       environment:

@@ -1,0 +1,14 @@
+name: Deploy on label
+
+on:
+  issue:
+    types: [labeled]
+
+jobs:
+  pipeline:
+    if: github.event.label.name == 'deploy-staging'
+    uses: ./.github/workflows/ci-cd.yaml
+    with:
+      environment: staging
+      run_smoketests: "yes"
+    secrets: inherit

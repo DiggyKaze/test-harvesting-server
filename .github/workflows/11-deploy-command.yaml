@@ -1,0 +1,32 @@
+name: deploy command (/deploy)
+
+on:
+  issue_comment:
+    types: [created]
+
+
+jobs:
+  check:
+    if: >-
+      startsWith(github.event.comment.body, '/deploy') &&
+      contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.parse.outputs.environment }}
+    steps:
+      - id: parse
+        env:
+          BODY: ${{ github.event.comment.body }}
+        run:
+          if echo "$BODY" | grep -q "production"; then
+            echo "environment=production" >> "$GITHUB_OUTPUT"
+          else
+            echo "environment=staging" >> "$GITHUB_OUTPUT"
+          fi
+  pipeline:
+    needs: check
+    uses: ./.github/workflows/ci-cd.yaml
+    with:
+      environment: ${{ needs.check.outputs.environment }}
+      run_smoke_tests: "yes"
+    secrets: inherit

@@ -1,0 +1,22 @@
+name: Pipeline report
+
+on:
+  workflow_run:
+    workflows: ["ci-cd-pipeline"]
+    types: [completed]
+
+jobs:
+  report-failure:
+    if: github.event.workflow_run.conclusion == 'failure'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Tell Slack the pipeline failed
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          RUN_URL: ${{ github.event.workflow_run.html.url }}
+          WHO: ${{ github.event.workflow_run.actor.login }}
+        run:
+          TEXT=":rotating_light: ci-cd-pipeline failed (started by $WHO). <$RUN_URL|See the run>"
+          curl -sSf -X POST -H 'content-type: application/json' \
+            --data "{\"text"\: \"$TEXT\"} \
+            "$SLACK_WEBHOOK_URL"
